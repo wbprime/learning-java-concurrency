@@ -1,54 +1,38 @@
-package me.wbprime;
+package me.wbprime.learnjavaconcurrency;
 
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Class: ConditionCase
- * Date: 2016/04/07 10:09
+ * Class: DepositCase
+ * Date: 2016/04/05 14:42
  *
- * @author Elvis Wang [bo.wang35@renren-inc.com]
+ * @author Elvis Wang [mail@wbprime.me]
  */
-public final class ConditionCase {
+public class DepositCase {
     private static class DepositAccount {
         private int money;
-
-        private final ReentrantLock lock = new ReentrantLock();
-        private final Condition cond = lock.newCondition();
 
         public DepositAccount() {
             this.money = 0;
         }
 
-        public void withdraw(final int val) {
-            lock.lock();
-            try {
-                while (money < val) {
-                    try {
-                        cond.await(); // 钱不够，等一会儿
-                    } catch (InterruptedException e) {
-                        // do nothing here
-                    }
+        public synchronized void withdraw(final int val) {
+            while (money < val) {
+                try {
+                    this.wait(); // 钱不够，等一会儿
+                } catch (InterruptedException e) {
+                    // do nothing here
                 }
-
-                money -= val;
-            } finally {
-                lock.unlock();
             }
+
+            money -= val;
         }
 
-        public void deposite(final int val) {
-            lock.lock();
-            try {
-                money += val;
-
-                cond.signalAll(); // 存完钱周知一下
-            } finally {
-                lock.unlock();
-            }
+        public synchronized void deposite(final int val) {
+            money += val;
+            this.notifyAll(); // 存完钱周知一下
         }
     }
 

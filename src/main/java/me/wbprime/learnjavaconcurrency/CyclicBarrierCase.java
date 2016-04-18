@@ -1,4 +1,4 @@
-package me.wbprime;
+package me.wbprime.learnjavaconcurrency;
 
 
 import com.google.common.collect.ImmutableList;
